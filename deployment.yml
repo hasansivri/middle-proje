@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microservice-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: microservice
+  template:
+    metadata:
+      labels:
+        app: microservice
+    spec:
+      containers:
+      - name: microservice
+        image: 877540899436.dkr.ecr.us-east-1.amazonaws.com/hasan05/to-do-webapp
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
