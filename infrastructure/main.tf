@@ -23,52 +23,50 @@ resource "aws_security_group" "hasan-mutual-sg" {
   vpc_id = data.aws_vpc.name.id
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
-    self        = true
+    protocol = "tcp"
+    from_port = 10250
+    to_port = 10250
+    self = true
   }
 
-  ingress {
-    protocol    = "udp"
-    from_port   = 8080
-    to_port     = 8080
-    self        = true
+    ingress {
+    protocol = "udp"
+    from_port = 8472
+    to_port = 8472
+    self = true
   }
 
-  ingress {
-    protocol    = "tcp"
-    from_port   = 5000
-    to_port     = 5000
-    self        = true
+    ingress {
+    protocol = "tcp"
+    from_port = 2379
+    to_port = 2380
+    self = true
   }
-}
 
 resource "aws_security_group" "hasan-kube-worker-sg" {
   name   = var.sec-gr-k8s-worker
   vpc_id = data.aws_vpc.name.id
 
-  ingress {
-    protocol    = "tcp"
-    from_port   = 30000
-    to_port     = 32767
+ingress {
+    protocol = "tcp"
+    from_port = 30000
+    to_port = 32767
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
+    protocol = "tcp"
+    from_port = 22
+    to_port = 22
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  egress {
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
+  egress{
+    protocol = "-1"
+    from_port = 0
+    to_port = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
-
   tags = {
     Name = "kube-worker-secgroup"
   }
@@ -78,45 +76,45 @@ resource "aws_security_group" "hasan-kube-master-sg" {
   name   = var.sec-gr-k8s-master
   vpc_id = data.aws_vpc.name.id
 
-  ingress {
-    protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
+    ingress {
+    protocol = "tcp"
+    from_port = 22
+    to_port = 22
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 5000
-    to_port     = 5000
+    protocol = "tcp"
+    from_port = 6443
+    to_port = 6443
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
-    self        = true
+    protocol = "tcp"
+    from_port = 10257
+    to_port = 10257
+    self = true
   }
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 8080
-    to_port     = 8080
-    self        = true
+    protocol = "tcp"
+    from_port = 10259
+    to_port = 10259
+    self = true
   }
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 30000
-    to_port     = 32767
+    protocol = "tcp"
+    from_port = 30000
+    to_port = 32767
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
+    protocol = "-1"
+    from_port = 0
+    to_port = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
   
