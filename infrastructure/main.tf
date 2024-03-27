@@ -158,7 +158,7 @@ resource "aws_instance" "kube-master" {
   instance_type          = "t2.micro"
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   vpc_security_group_ids = [aws_security_group.hasan-kube-master-sg.id, aws_security_group.hasan-mutual-sg.id]
-  key_name               = "clarus"
+  key_name               = "secondkey"
   subnet_id              = "subnet-012b73e2614cfbe2b"  # Select your own subnet_id of us-east-1a
   availability_zone      = "us-east-1a"
   
@@ -175,7 +175,7 @@ resource "aws_instance" "worker" {
   ami                    = "ami-07d9b9ddc6cd8dd30"
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.hasan-kube-worker-sg.id, aws_security_group.hasan-mutual-sg.id]
-  key_name               = "clarus"
+  key_name               = "secondkey"
   subnet_id              = "subnet-012b73e2614cfbe2b"  # Select your own subnet_id of us-east-1a
   availability_zone      = "us-east-1a"
   
