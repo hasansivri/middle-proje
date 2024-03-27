@@ -23,4 +23,33 @@ pipeline {
             steps {
                 echo 'Creating infrastructure using Terraform'
                 dir('infrastructure') {
-         
+                    sh """
+                        sed -i 's/clarus/${ANS_KEYPAIR}/g' main.tf
+                        terraform init
+                        terraform apply -auto-approve -no-color
+                    """
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    echo 'Deploying to Kubernetes'
+                    withKubeConfig([credentialsId: 'kube-config', serverUrl: "https://$KUBE_MASTER_IP"]) {
+                        sh 'kubectl apply -f deployment.yml -f service.yml'
+                    }
+                }
+            }
+        }
+        stage('Configure HPA') {
+            steps {
+                script {
+                    echo 'Configuring HPA'
+                    withKubeConfig([credentialsId: 'kube-config', serverUrl: "https://$KUBE_MASTER_IP"]) {
+                        sh 'kubectl apply -f hpa.yml'
+                    }
+                }
+            }
+        }
+    }
+}
