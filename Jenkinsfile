@@ -27,6 +27,7 @@ pipeline {
                         sed -i 's/secondkey/${ANS_KEYPAIR}/g' main.tf
                         terraform init
                         terraform apply -auto-approve -no-color
+                         terraform destroy -auto-approve -no-color
                         
                     """
                 }
