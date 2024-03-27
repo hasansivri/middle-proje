@@ -126,7 +126,7 @@ resource "aws_security_group" "petclinic-kube-master-sg" {
 }
 
 resource "aws_iam_role" "roleforjenkins" {
-  name               = "ecr_jenkins_permission_${local.user}"
+  name               = "ecr_jenkins_permission_your_gateway_name"
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [
@@ -149,7 +149,7 @@ resource "aws_iam_role" "roleforjenkins" {
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "jenkinsprofile-${local.user}"
+  name = "jenkinsprofile-your-gateway-name"
   role = aws_iam_role.roleforjenkins.name
 }
 
