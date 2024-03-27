@@ -3,22 +3,22 @@ provider "aws" {
 }
 
 variable "sec-gr-mutual" {
-  default = "petclinic-k8s-mutual-sec-group"
+  default = "k8s-mutual-sec-group"
 }
 
 variable "sec-gr-k8s-master" {
-  default = "petclinic-k8s-master-sec-group"
+  default = "k8s-master-sec-group"
 }
 
 variable "sec-gr-k8s-worker" {
-  default = "petclinic-k8s-worker-sec-group"
+  default = "k8s-worker-sec-group"
 }
 
 data "aws_vpc" "name" {
   default = true
 }
 
-resource "aws_security_group" "petclinic-mutual-sg" {
+resource "aws_security_group" "mutual-sg" {
   name = var.sec-gr-mutual
   vpc_id = data.aws_vpc.name.id
 
@@ -55,7 +55,7 @@ resource "aws_security_group" "petclinic-mutual-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-resource "aws_security_group" "petclinic-kube-worker-sg" {
+resource "aws_security_group" "kube-worker-sg" {
   name = var.sec-gr-k8s-worker
   vpc_id = data.aws_vpc.name.id
 
@@ -104,9 +104,36 @@ resource "aws_security_group" "petclinic-kube-worker-sg" {
   }
 }
 
-resource "aws_security_group" "petclinic-kube-master-sg" {
+resource "aws_security_group" "kube-master-sg" {
   name = var.sec-gr-k8s-master
   vpc_id = data.aws_vpc.name.id
+
+ 
+  ingress {
+    protocol = "tcp"
+    from_port = 30000
+    to_port = 32767
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+ ingress {
+    from_port = 80
+    protocol = "tcp"
+    to_port = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+ ingress {
+    from_port = 8080
+    protocol = "tcp"
+    to_port = 8080
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+ ingress {
+    from_port = 5000
+    protocol = "tcp"
+    to_port = 5000
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
 
   ingress {
     protocol = "tcp"
@@ -115,33 +142,11 @@ resource "aws_security_group" "petclinic-kube-master-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    protocol = "tcp"
-    from_port = 6443
-    to_port = 6443
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    protocol = "tcp"
-    from_port = 10257
-    to_port = 10257
-    self = true
-  }
-
-  ingress {
-    protocol = "tcp"
-    from_port = 10259
-    to_port = 10259
-    self = true
-  }
-
-  ingress {
-    protocol = "tcp"
-    from_port = 30000
-    to_port = 32767
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  egress{
+    protocol = "-1"
+    from_port = 0
+    to_port = 0
+    cid
 
   egress {
     protocol = "-1"
@@ -177,8 +182,8 @@ resource "aws_iam_role" "ec2ecrfullaccess" {
 resource "aws_instance" "kube-master" {
     ami = "ami-07d9b9ddc6cd8dd30"
     instance_type = "t3a.medium"
-    iam_instance_profile = aws_iam_instance_profile.petclinic-master-server-profile.name
-    vpc_security_group_ids = [aws_security_group.petclinic-kube-master-sg.id, aws_security_group.petclinic-mutual-sg.id]
+    iam_instance_profile = aws_iam_instance_profile.master-server-profile.name
+    vpc_security_group_ids = [aws_security_group.kube-master-sg.id, aws_security_group.mutual-sg.id]
     key_name = "clarus"
     subnet_id = "subnet-012b73e2614cfbe2b"  # select own subnet_id of us-east-1a
     availability_zone = "us-east-1a"
@@ -194,7 +199,7 @@ resource "aws_instance" "kube-master" {
 resource "aws_instance" "worker-1" {
     ami = "ami-07d9b9ddc6cd8dd30"
     instance_type = "t3a.medium"
-    vpc_security_group_ids = [aws_security_group.petclinic-kube-worker-sg.id, aws_security_group.petclinic-mutual-sg.id]
+    vpc_security_group_ids = [aws_security_group.kube-worker-sg.id, aws_security_group.mutual-sg.id]
     key_name = "clarus"
     subnet_id = "subnet-012b73e2614cfbe2b"  # select own subnet_id of us-east-1a
     availability_zone = "us-east-1a"
