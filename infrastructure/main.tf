@@ -3,22 +3,22 @@ provider "aws" {
 }
 
 variable "sec-gr-mutual" {
-  default = "petclinic-k8s-mutual-sec-group"
+  default = "hasan-k8s-mutual-sec-group"
 }
 
 variable "sec-gr-k8s-master" {
-  default = "petclinic-k8s-master-sec-group"
+  default = "hasan-k8s-master-sec-group"
 }
 
 variable "sec-gr-k8s-worker" {
-  default = "petclinic-k8s-worker-sec-group"
+  default = "hasan-k8s-worker-sec-group"
 }
 
 data "aws_vpc" "name" {
   default = true
 }
 
-resource "aws_security_group" "petclinic-mutual-sg" {
+resource "aws_security_group" "hasan-mutual-sg" {
   name   = var.sec-gr-mutual
   vpc_id = data.aws_vpc.name.id
 
@@ -44,7 +44,7 @@ resource "aws_security_group" "petclinic-mutual-sg" {
   }
 }
 
-resource "aws_security_group" "petclinic-kube-worker-sg" {
+resource "aws_security_group" "hasan-kube-worker-sg" {
   name   = var.sec-gr-k8s-worker
   vpc_id = data.aws_vpc.name.id
 
@@ -74,7 +74,7 @@ resource "aws_security_group" "petclinic-kube-worker-sg" {
   }
 }
 
-resource "aws_security_group" "petclinic-kube-master-sg" {
+resource "aws_security_group" "hasan-kube-master-sg" {
   name   = var.sec-gr-k8s-master
   vpc_id = data.aws_vpc.name.id
 
@@ -126,7 +126,7 @@ resource "aws_security_group" "petclinic-kube-master-sg" {
 }
 
 resource "aws_iam_role" "roleforjenkins" {
-  name               = "ecr_jenkins_permission_your_gateway_name"
+  name               = "ecr_jenkins_hasan"
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [
@@ -149,15 +149,15 @@ resource "aws_iam_role" "roleforjenkins" {
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "jenkinsprofile-your-gateway-name"
+  name = "jenkinsprofile-hasan"
   role = aws_iam_role.roleforjenkins.name
 }
 
 resource "aws_instance" "kube-master" {
   ami                    = "ami-07d9b9ddc6cd8dd30"
-  instance_type          = "t3a.medium"
+  instance_type          = "t2.micro"
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
-  vpc_security_group_ids = [aws_security_group.petclinic-kube-master-sg.id, aws_security_group.petclinic-mutual-sg.id]
+  vpc_security_group_ids = [aws_security_group.hasan-kube-master-sg.id, aws_security_group.hasan-mutual-sg.id]
   key_name               = "clarus"
   subnet_id              = "subnet-012b73e2614cfbe2b"  # Select your own subnet_id of us-east-1a
   availability_zone      = "us-east-1a"
@@ -171,16 +171,16 @@ resource "aws_instance" "kube-master" {
   }
 }
 
-resource "aws_instance" "worker-1" {
+resource "aws_instance" "worker" {
   ami                    = "ami-07d9b9ddc6cd8dd30"
-  instance_type          = "t3a.medium"
-  vpc_security_group_ids = [aws_security_group.petclinic-kube-worker-sg.id, aws_security_group.petclinic-mutual-sg.id]
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.hasan-kube-worker-sg.id, aws_security_group.hasan-mutual-sg.id]
   key_name               = "clarus"
   subnet_id              = "subnet-012b73e2614cfbe2b"  # Select your own subnet_id of us-east-1a
   availability_zone      = "us-east-1a"
   
   tags = {
-    Name        = "worker-1"
+    Name        = "worker"
     Project     = "tera-kube-ans"
     Role        = "worker"
     Id          = "1"
@@ -194,8 +194,8 @@ output "kube-master-ip" {
   description = "Public IP of the kube-master"
 }
 
-output "worker-1-ip" {
-  value       = aws_instance.worker-1.public_ip
+output "worker-ip" {
+  value       = aws_instance.worker.public_ip
   sensitive   = false
-  description = "Public IP of the worker-1"
+  description = "Public IP of the worker"
 }
