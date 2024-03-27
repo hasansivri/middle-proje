@@ -186,4 +186,13 @@ resource "aws_instance" "worker-1" {
   ]
   key_name             = "clarus"
   subnet_id            = "subnet-012b73e2614cfbe2b"
-  availability_zone    = "us-east-1a
+  availability_zone    = "us-east-1a"
+  tags = {
+    Name        = "worker-1"
+    Project     = "tera-kube-ans"
+    Role        = "worker"
+    Id          = "1"
+    environment = "dev"
+  }
+}
+
