@@ -24,26 +24,36 @@ resource "aws_security_group" "petclinic-mutual-sg" {
 
   ingress {
     protocol = "tcp"
-    from_port = 10250
-    to_port = 10250
-    self = true
+    from_port = 30000
+    to_port = 32767
+    cidr_blocks = ["0.0.0.0/0"]
   }
-
-    ingress {
-    protocol = "udp"
-    from_port = 8472
-    to_port = 8472
-    self = true
-  }
-
-    ingress {
+ ingress {
+    from_port = 80
     protocol = "tcp"
-    from_port = 2379
-    to_port = 2380
-    self = true
+    to_port = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+ ingress {
+    from_port = 8080
+    protocol = "tcp"
+    to_port = 8080
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+ ingress {
+    from_port = 5000
+    protocol = "tcp"
+    to_port = 5000
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
-}
+
+  ingress {
+    protocol = "tcp"
+    from_port = 22
+    to_port = 22
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
 resource "aws_security_group" "petclinic-kube-worker-sg" {
   name = var.sec-gr-k8s-worker
@@ -56,6 +66,25 @@ resource "aws_security_group" "petclinic-kube-worker-sg" {
     to_port = 32767
     cidr_blocks = ["0.0.0.0/0"]
   }
+ ingress {
+    from_port = 80
+    protocol = "tcp"
+    to_port = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+ ingress {
+    from_port = 8080
+    protocol = "tcp"
+    to_port = 8080
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+ ingress {
+    from_port = 5000
+    protocol = "tcp"
+    to_port = 5000
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
 
   ingress {
     protocol = "tcp"
@@ -126,32 +155,25 @@ resource "aws_security_group" "petclinic-kube-master-sg" {
   }
 }
 
-resource "aws_iam_role" "petclinic-master-server-s3-role" {
-  name               = "petclinic-master-server-role"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
+resource "aws_iam_role" "ec2ecrfullaccess" {
+  name = "ecr_ec2_permission-${local.user}"
+  managed_policy_arns = ["arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"]
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
       },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
+    ]
+  })
 }
-EOF
-
-  managed_policy_arns = ["arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"]
-}
-
-resource "aws_iam_instance_profile" "petclinic-master-server-profile" {
-  name = "petclinic-master-server-profile"
-  role = aws_iam_role.petclinic-master-server-s3-role.name
-}
-
 resource "aws_instance" "kube-master" {
     ami = "ami-07d9b9ddc6cd8dd30"
     instance_type = "t3a.medium"
