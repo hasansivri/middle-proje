@@ -4,7 +4,7 @@ pipeline {
         ECR_REGISTRY = "877540899436.dkr.ecr.us-east-1.amazonaws.com"
         APP_REPO_NAME = "hasan05/to-do-webapp"
         KUBE_MASTER_IP = "<Kubernetes_Master_IP>"
-        ANS_KEYPAIR = "clarus"
+        
     }
     stages {
         stage('Build Docker Image') {
