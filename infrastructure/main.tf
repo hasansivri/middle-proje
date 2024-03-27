@@ -42,6 +42,7 @@ resource "aws_security_group" "hasan-mutual-sg" {
     to_port = 2380
     self = true
   }
+}
 
 resource "aws_security_group" "hasan-kube-worker-sg" {
   name   = var.sec-gr-k8s-worker
