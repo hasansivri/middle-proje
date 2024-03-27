@@ -37,20 +37,9 @@ pipeline {
                 script {
                     echo 'Deploying to Kubernetes'
                     withKubeConfig([credentialsId: 'kube-config', serverUrl: "https://$KUBE_MASTER_IP"]) {
-                        sh 'kubectl apply -f deployment.yml -f service.yml'
+                        sh 'kubectl apply -f ./* --namespace my-namespace'
                     }
                 }
             }
         }
-        stage('Configure HPA') {
-            steps {
-                script {
-                    echo 'Configuring HPA'
-                    withKubeConfig([credentialsId: 'kube-config', serverUrl: "https://$KUBE_MASTER_IP"]) {
-                        sh 'kubectl apply -f hpa.yml'
-                    }
-                }
-            }
-        }
-    }
-}
+
