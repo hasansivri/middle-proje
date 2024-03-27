@@ -4,7 +4,6 @@ pipeline {
         ECR_REGISTRY = "877540899436.dkr.ecr.us-east-1.amazonaws.com"
         APP_REPO_NAME = "hasan05/to-do-webapp"
         KUBE_MASTER_IP = "<Kubernetes_Master_IP>"
-        ANS_KEYPAIR = "clarus"
     }
     stages {
         stage('Build Docker Image') {
@@ -22,13 +21,12 @@ pipeline {
         stage('Create Infrastructure') {
             steps {
                 echo 'Creating infrastructure using Terraform'
-                dir('infrastructure') {
-                    sh """
-                        sed -i 's/clarus/${ANS_KEYPAIR}/g' main.tf
-                        terraform init
-                        terraform apply -auto-approve -no-color
-                    """
-                }
+                sh """
+                    cd infrastructure
+                    sed -i "s/clarus/$ANS_KEYPAIR/g" main.tf
+                    terraform init
+                    terraform apply -auto-approve -no-color
+                """
             }
         }
         stage('Deploy to Kubernetes') {
